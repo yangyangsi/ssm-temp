@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hand.yz24580.ssm.mapper.ItemMapper">
+
+    <resultMap id="itemResultMap" type="com.hand.yz24580.ssm.pojo.Item">
+        <id property="itemId" column="item_id"/>
+        <result property="itemCode" column="item_code" />
+        <result property="itemUom" column="item_uom" />
+        <result property="itemDescription" column="item_description" />
+        <result property="startActiveDate" column="start_active_date" />
+        <result property="endActiveDate" column="end_active_date" />
+        <result property="enabledFlag" column="enabled_flag" />
+        <result property="objectVersionNumber" column="object_version_number" />
+        <result property="creationDate" column="creation_date" />
+        <result property="createdBy" column="created_by" />
+        <result property="lastUpdatedBy" column="last_updated_by" />
+        <result property="lastUpdateDate" column="last_update_date" />
+    </resultMap>
+
+    <select id="getItemsByExample" parameterType="com.hand.yz24580.ssm.pojo.ItemExample" resultMap="itemResultMap">
+        select item_id,
+                item_code,
+                 item_uom,
+                  item_description,
+                   start_active_date,
+                    end_active_date,
+                     enabled_flag,
+                      object_version_number,
+                       creation_date,
+                        created_by,
+                         last_updated_by,
+                          last_update_date from ssm_item
+                            <if test="item != null">
+                                <where>
+                                    <if test = "item.itemCode != null">
+                                        item_code = #{item.itemCode}
+                                    </if>
+                                    <if test = "item.itemUom != null">
+                                        and item_uom = #{item.itemUom}
+                                    </if>
+                                    <if test = "item.itemDescription != null">
+                                        and item_description = #{item.itemDescription}
+                                    </if>
+                                    <if test = "item.startActiveDate != null">
+                                        and start_active_date &gt; #{item.startActiveDate,jdbcType=DATE}
+                                    </if>
+                                    <if test = "item.endActiveDate != null">
+                                        and end_active_date &lt; #{item.endActiveDate,jdbcType=DATE}
+                                    </if>
+                                    <if test = "item.enabledFlag != null">
+                                        and enabled_flag = #{item.enabledFlag}
+                                    </if>
+                                </where>
+                            </if>
+                            <choose>
+                                <when test="isAsc != null">
+                                    <choose>
+                                        <when test="isAsc != false">
+                                            order by item_id asc
+                                        </when>
+                                        <otherwise>
+                                            order by item_id desc
+                                        </otherwise>
+                                    </choose>
+                                </when>
+                                <otherwise>
+                                    order by item_id asc
+                                </otherwise>
+                            </choose>
+    </select>
+
+    <select id="getItemById" resultMap="itemResultMap">
+        select item_id,
+                item_code,
+                 item_uom,
+                  item_description,
+                   start_active_date,
+                    end_active_date,
+                     enabled_flag,
+                      object_version_number,
+                       creation_date,
+                        created_by,
+                         last_updated_by,
+                          last_update_date from ssm_item
+                           where item_id = #{value}
+    </select>
+
+    <insert id="insertItem" parameterType="com.hand.yz24580.ssm.pojo.Item" keyProperty="item_id" useGeneratedKeys="true">
+        insert into ssm_item (item_code,item_uom,item_description,start_active_date,end_active_date,enabled_flag)
+         values (#{itemCode},#{itemUom},#{itemDescription},#{startActiveDate},#{endActiveDate},#{enabledFlag});
+    </insert>
+
+    <update id="updateItemByItemId" parameterType="com.hand.yz24580.ssm.pojo.Item">
+        update ssm_item
+         <set>
+            <if test="itemCode != null">
+                item_code = #{itemCode},
+            </if>
+             <if test="itemUom != null">
+                 item_uom = #{itemUom},
+             </if>
+             <if test="itemDescription != null">
+                 item_description = #{itemDescription},
+             </if>
+             <if test="startActiveDate != null">
+                 start_active_date = #{startActiveDate},
+             </if>
+             <if test="endActiveDate != null">
+                 end_active_date = #{endActiveDate},
+             </if>
+             <if test="enabledFlag != null">
+                 enabled_flag = #{enabledFlag},
+             </if>
+                 object_version_number = object_version_number + 1,
+                 last_update_date = now()
+         </set>
+                 where item_id = #{itemId}
+    </update>
+
+    <delete id="deleteItemByItemId">
+        delete from ssm_item
+         where item_id = #{value}
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from ssm_item where item_id in
+         <foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+         </foreach>
+    </delete>
+
+    <select id="getItemCodeMax" resultType="java.lang.String">
+        select item_code from ssm_item where item_id = (select max(item_id) from ssm_item)
+    </select>
+
+    <select id="getItemsByIds" resultMap="itemResultMap">
+        select item_id,
+                item_code,
+                 item_uom,
+                  item_description,
+                   start_active_date,
+                    end_active_date,
+                     enabled_flag,
+                      object_version_number,
+                       creation_date,
+                        created_by,
+                         last_updated_by,
+                          last_update_date from ssm_item
+                            where item_id in
+                            <foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+                                #{item}
+                            </foreach>
+    </select>
+</mapper>
